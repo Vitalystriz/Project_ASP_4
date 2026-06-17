@@ -12,5 +12,9 @@ router.get('/:pId', productController.getProductByID);
 router.patch('/:pId', verifyAuth, productController.updateProductByID);
 router.delete('/:pId', verifyAuth,  productController.deleteProductByID);
 
+const recommendationRouter = require('./recommendationRouter')
+router.use('/:pId/recommendations', recommendationRouter);
+
+
 
 module.exports = router
