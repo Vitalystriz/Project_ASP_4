@@ -1,5 +1,6 @@
 const User = require('../models/users');
 
+
 exports.userSignIn = (req, res) => {
     const { name, password, phone, address } = req.body;
     if (!name || !password || !phone || !address) {
@@ -25,3 +26,6 @@ exports.getUserByID = (req, res) => {
         res.status(404).json({ message: 'user not found' });
     }
 }
+
+
+
