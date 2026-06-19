@@ -12,12 +12,15 @@ const Navbar = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+    
     setIsLoggedIn(!!token);
 
-    if (token) {
+    if (token && userString) {
+        const user = JSON.parse(userString);
         setUserData({
-            name: localStorage.getItem('displayName') || 'User',
-            avatar: localStorage.getItem('picture') || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+            name: user.displayName || user.username || 'User',
+            avatar: user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
         });
     }
   }, [location]);
@@ -34,8 +37,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
       localStorage.removeItem('token');
-      localStorage.removeItem('displayName');
-      localStorage.removeItem('picture');
+      localStorage.removeItem('user');
       setIsLoggedIn(false);
       navigate('/login');
   };
