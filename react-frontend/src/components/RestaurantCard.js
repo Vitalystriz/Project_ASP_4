@@ -13,7 +13,11 @@ const RestaurantCard = ({ restaurant }) => {
             <div className="restaurant-info">
                 <h2 className="restaurant-name">{restaurant.name}</h2>
                 <p className="restaurant-type">{restaurant.type}</p>
-                <p className="restaurant-description">{restaurant.description}</p>
+                
+                {restaurant.description && (
+                    <p className="restaurant-description">{restaurant.description}</p>
+                )}
+                
                 <p className="restaurant-address">{restaurant.address}</p>
             </div>
         </div>

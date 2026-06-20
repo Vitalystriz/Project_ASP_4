@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -15,29 +16,30 @@ body {
 
 .app-container {
   min-height: 100vh;
-  padding: 2rem 1rem;
-  direction: rtl;
+  direction: ltr;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 2rem 1rem; 
+  box-sizing: border-box;
 }
 
 .page-title {
   font-size: 2rem;
   font-weight: 800;
   color: #28526e;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem; 
+  margin-top: 0;
   text-align: center;
   width: 100%;
 }
 
-.restaurants-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
-  gap: 24px;
+.loading {
+  grid-column: 1 / -1;
   width: 100%;
-  max-width: 1200px;
-  padding: 0.5rem;
-  justify-content: center; 
-  justify-items: center;
+  text-align: center;
+  font-size: 1.5rem;
+  color: #00c2e8;
+  font-weight: bold;
+  padding: 60px 20px;
 }

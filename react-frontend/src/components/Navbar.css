@@ -1,0 +1,102 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+  direction: ltr;
+  padding: 0.75rem 1rem;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  min-height: 3rem;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #202124;
+  letter-spacing: -0.5px;
+}
+
+.logo-dot {
+  color: #00c2e8;
+}
+
+.navbar-address-delivery {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  max-width: 15rem;
+  margin-left: 0;
+}
+
+.address-icon {
+  font-size: 1.1rem;
+  margin-right: 0.6rem;
+}
+
+.address-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.address-label {
+  font-size: 0.7rem;
+  color: #70757a;
+}
+
+.address-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #202124;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-search-section {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  z-index: 2;
+}
+
+.navbar-search-section .search-bar-container,
+.navbar-search-section input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.navbar-search-section .search-bar-container {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .navbar-address-delivery {
+    display: none;
+  }
+  
+  .navbar-search-section {
+    position: static;
+    transform: none;
+    max-width: 100%;
+  }
+}

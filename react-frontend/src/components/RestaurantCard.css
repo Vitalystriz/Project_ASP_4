@@ -1,76 +1,58 @@
 .restaurant-card {
-  width: 17.5rem;
-  height: 11rem;            
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  direction: ltr;
+  height: 100%;
 }
 
 .restaurant-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.restaurant-image-wrapper {
+  width: 100%;
+  height: 160px;
+  background-color: #f1f3f4;
+  position: relative;
+}
+
+.restaurant-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .restaurant-info {
   padding: 1rem;
-  direction: rtl;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 0.25rem;
+  flex-grow: 1;
 }
 
 .restaurant-name {
-  margin: 0 0 0.25rem 0;
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #28526e;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
 }
 
 .restaurant-type {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.875rem;
-  color: #5f6368;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.restaurant-description {
-  margin: 0 0 auto 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #70757a;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
 }
 
 .restaurant-address {
-  text-align: right;
-  margin: 0.5rem 0 0.25rem 0;
-  font-size: 0.75rem;
-  color: #70757a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.restaurant-products {
-  display: flex;
-  justify-content: space-between;
   font-size: 0.85rem;
-  font-weight: bold;
-  color: #3c4043;
+  color: #a0a5aa;
+  margin-top: auto; 
   padding-top: 0.5rem;
-  border-top: 1px solid #f1f3f4;
 }
