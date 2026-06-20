@@ -51,7 +51,7 @@ const Restaurants = ({ searchTerm }) => {
     }, [searchTerm, restaurants]);
 
     if (loading) {
-        return <div className="loading">..</div>;
+        return <div className="loading">...</div>;
     }
 
     return (

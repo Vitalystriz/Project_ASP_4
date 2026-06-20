@@ -3,7 +3,7 @@
   border-radius: 12px;
   padding: 1rem;
   display: flex;
-  flex-direction: row; /* מבטיח שהתמונה תהיה משמאל והטקסט מימין */
+  flex-direction: row;
   align-items: center;
   gap: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -28,7 +28,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
-  text-align: left; /* מיישר את הטקסט לשמאל עבור אנגלית */
+  text-align: left;
 }
 
 .product-card-name {
@@ -48,4 +48,16 @@
   font-weight: 700;
   color: #00c2e8;
   margin-top: 4px;
+}
+
+.product-card-type-tag {
+    display: inline-block;
+    background-color: #f0f2f5;
+    color: #65676b;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
 }
