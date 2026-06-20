@@ -1,4 +1,6 @@
 const express = require('express')
+const cors = require('cors');
+
 const app = express()
 
 app.use(express.json())
@@ -10,7 +12,7 @@ const ordersRouter = require('./routes/orders')
 
 const search = require('./routes/search')
 
-
+app.use(cors());
 
 app.use('/api/users', usersRouter)
 app.use('/api/tokens', tokensRouter)

@@ -1,24 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.jsx
+import React from 'react';
+import OrderPage from './pages/OrderPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#fff', minHeight: '100vh' }}>
+        <header style={{ backgroundColor: '#212529', color: 'white', padding: '15px' }}>
+          <h3 style={{ margin: '0' }}>Wolt</h3>
+        </header>
+        <main>
+          <OrderPage />
+        </main>
+      </div>
   );
 }
 
