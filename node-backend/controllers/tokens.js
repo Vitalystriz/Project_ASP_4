@@ -1,13 +1,16 @@
 const User = require('../models/users');
 
 exports.userLogin = (req, res) => {
-    const { name, password } = req.body;
-    if (!name || !password) {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
         return res.status(400).json({ message: 'missing fields' });
     }
-    const user = User.authentication(name, password);
+    
+    const user = User.authentication(username, password);
+    
     if (user) {
-        res.json(user);
+        res.status(200).json({ token: "fake-jwt-token-for-now", user: user });
     } else {
         res.status(401).json({ message: 'authentication failed' });
     }
