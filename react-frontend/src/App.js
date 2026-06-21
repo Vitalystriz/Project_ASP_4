@@ -4,6 +4,7 @@ import Restaurants from './pages/Restaurants';
 import Navbar from './components/Navbar';
 import './App.css';
 import Restaurant from './pages/Restaurant';
+import Product from './pages/Product';
 
 function App() {
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -40,6 +41,7 @@ return (
         <Routes>
           <Route path="/" element={<Restaurants searchTerm={searchTerm} userAddress={userAddress} />} />
           <Route path="/restaurant/:id" element={<Restaurant searchTerm={searchTerm} />} />
+          <Route path="/product/:id" element={<Product />} />
         </Routes>
       </div>
     </Router>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom'; // 1. מייבאים את useLocation כדי לזהות את הכתובת
+import { useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import './Navbar.css';
 

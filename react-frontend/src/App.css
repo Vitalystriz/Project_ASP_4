@@ -43,3 +43,24 @@ body {
   font-weight: bold;
   padding: 60px 20px;
 }
+
+.back-btn {
+  background-color: #00c2e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  align-self: flex-start;    
+  width: fit-content;        
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+  background-color: #009cb2;
+}
