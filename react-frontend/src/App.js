@@ -1,10 +1,30 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Register from './components/Register';
+import Login from './components/Login';
+import Restaurants from './pages/Restaurants';
+import RestaurantPage from './pages/Restaurant';
+import ProductCard from './components/ProductCard';
+import OrderPage from './pages/OrderPage';
+import HistoryOrdersPage from './pages/HistoryOrdersPage';
 import './App.css';
 
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 function App() {
+  const [searchTerm, setSearchTerm] = useState('');
+
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -12,8 +32,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         {/*epic 2*/}
-        <Route path="/restaurants" element={<ProtectedRoute><Restaurants /></ProtectedRoute>} />
-        <Route path="/restaurant/:id" element={<ProtectedRoute><RestaurantPage /></ProtectedRoute>} />
+        <Route path="/restaurants" element={<ProtectedRoute><Restaurants searchTerm={searchTerm} /></ProtectedRoute>} />
+        <Route path="/restaurant/:id" element={<ProtectedRoute><RestaurantPage searchTerm={searchTerm} /></ProtectedRoute>} />
         {/*epic 2+3*/}
         <Route path="/restaurant/:id/products" element={<ProtectedRoute><ProductCard /></ProtectedRoute>} />
         {/*epic 3*/}

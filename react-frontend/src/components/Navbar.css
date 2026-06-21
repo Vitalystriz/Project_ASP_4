@@ -7,29 +7,41 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   z-index: 1000;
   direction: ltr;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar.navbar-dark {
+  background-color: #1a1a1a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #2d2d2d;
 }
 
 .navbar-inner {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  position: relative;
-  min-height: 3rem;
+  gap: 1rem;
 }
 
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #202124;
-  letter-spacing: -0.5px;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.logo-dot {
-  color: #00c2e8;
+.navbar-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.navbar-logo-img {
+  height: 40px;
+  object-fit: contain;
 }
 
 .navbar-address-delivery {
@@ -39,7 +51,11 @@
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   max-width: 15rem;
-  margin-left: 0;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-dark .navbar-address-delivery {
+  background-color: #2d2d2d;
 }
 
 .address-icon {
@@ -58,6 +74,10 @@
   color: #70757a;
 }
 
+.navbar-dark .address-label {
+  color: #a0a0a0;
+}
+
 .address-value {
   font-size: 0.85rem;
   font-weight: 700;
@@ -67,36 +87,157 @@
   text-overflow: ellipsis;
 }
 
+.navbar-dark .address-value {
+  color: #ffffff;
+}
+
 .navbar-search-section {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  flex: 1;
+  max-width: 450px;
   display: flex;
   justify-content: center;
-  width: 100%;
-  max-width: 500px;
-  z-index: 2;
 }
 
-.navbar-search-section .search-bar-container,
-.navbar-search-section input {
-  width: 100%;
-  box-sizing: border-box;
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.navbar-search-section .search-bar-container {
-  margin: 0;
+.nav-btn {
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #28526e;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: none;
+}
+
+.navbar-dark .nav-btn {
+  color: #a0c0d8;
+}
+
+.nav-btn:hover {
+  background-color: #f0f4f8;
+  color: #00c2e8;
+}
+
+.navbar-dark .nav-btn:hover {
+  background-color: #2d2d2d;
+  color: #00c2e8;
+}
+
+.nav-btn-cart {
+  background-color: rgba(0, 194, 232, 0.1);
+  color: #00c2e8;
+}
+
+.nav-btn-cart:hover {
+  background-color: #00c2e8;
+  color: white;
+}
+
+.nav-btn-login {
+  color: #00c2e8;
+  border-color: #00c2e8;
+}
+
+.nav-btn-login:hover {
+  background-color: #00c2e8;
+  color: white;
+}
+
+.nav-btn-signup {
+  background-color: #00c2e8;
+  color: white;
+}
+
+.nav-btn-signup:hover {
+  background-color: #00a2c2;
+  color: white;
+}
+
+.nav-btn-logout {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.nav-btn-logout:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.navbar-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00c2e8;
+}
+
+.navbar-username {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #202124;
+}
+
+.navbar-dark .navbar-username {
+  color: #ffffff;
+}
+
+.nav-theme-toggle-btn {
+  background: none;
+  border: 1px solid #e8ecef;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.navbar-dark .nav-theme-toggle-btn {
+  border-color: #444;
+  color: #ffffff;
+}
+
+.nav-theme-toggle-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #00c2e8;
+}
+
+.navbar-dark .nav-theme-toggle-btn:hover {
+  background-color: #2d2d2d;
+  border-color: #00c2e8;
+}
+
+@media (max-width: 992px) {
+  .navbar-inner {
+    flex-wrap: wrap;
+  }
+  .navbar-search-section {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
 }
 
 @media (max-width: 768px) {
   .navbar-address-delivery {
     display: none;
   }
-  
-  .navbar-search-section {
-    position: static;
-    transform: none;
-    max-width: 100%;
+  .navbar-username {
+    display: none;
   }
 }

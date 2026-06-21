@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './Order.css';
 
 const OrderHistoryItem = ({ restaurantId, userId, product, onPriceReport }) => {
     const [productDetails, setProductDetails] = useState(null);
@@ -33,6 +34,7 @@ const OrderHistoryItem = ({ restaurantId, userId, product, onPriceReport }) => {
         };
 
         syncProductMetadata();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restaurantId, product.productId, userId]);
 
     useEffect(() => {
@@ -47,77 +49,48 @@ const OrderHistoryItem = ({ restaurantId, userId, product, onPriceReport }) => {
 
     if (!productDetails) {
         return (
-            <div style={{ padding: '10px', borderTop: '1px solid #ccc', marginTop: '10px', color: '#666' }}>
+            <div className="order-item-row" style={{ opacity: 0.6 }}>
                 <span>sync...</span>
             </div>
         );
     }
 
     return (
-        <div style={{
-            borderTop: '1px solid #eee',
-            marginTop: '10px',
-            paddingTop: '10px'
-        }}>
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ width: '50px', height: '50px', backgroundColor: '#e9ecef', borderRadius: '4px' }} />
-                <div style={{ flex: 1 }}>
-                    <h5 style={{ margin: '0 0 2px 0', color: '#333' }}>{productDetails.name}</h5>
-                    <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: '0.8rem' }}>{productDetails.description}</p>
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>Price: {productDetails.price} ILS</span>
+        <div className="order-item-row">
+            <div className="order-item-meta">
+                <div className="order-item-img-placeholder">🍔</div>
+                <div className="order-item-details">
+                    <h5 className="order-item-name">{productDetails.name}</h5>
+                    <p className="order-item-desc">{productDetails.description}</p>
+                    <span className="order-item-price-label">Price: {productDetails.price} ILS</span>
                 </div>
             </div>
 
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: '#fdfdfd',
-                padding: '4px 8px',
-                borderRadius: '4px'
-            }}>
-
-                <div style={{ fontSize: '0.9rem', color: '#444' }}>
-                    Quantity: <strong>{product.quantity} </strong>
+            <div className="order-item-controls-row">
+                <div className="order-qty-selector">
+                    <span>Quantity: <strong>{product.quantity}</strong></span>
                 </div>
 
-                <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#777' }}>Price:</div>
-                    <div style={{ fontWeight: 'bold', color: '#28a745' }}>
-                        {(productDetails.price * product.quantity).toFixed(2)} ILS
-                    </div>
+                <div className="order-item-subtotal-section">
+                    <div className="order-subtotal-lbl">Subtotal:</div>
+                    <div className="order-history-subtotal-val">{(productDetails.price * product.quantity).toFixed(2)} ILS</div>
                 </div>
             </div>
         </div>
     );
 };
 
-
 export default function OrderHistoryCard({ order, onPriceReport }) {
     return (
-        <div style={{
-            border: '1px solid #28a745',
-            padding: '20px',
-            margin: '20px 0',
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
-        }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h4 style={{ margin: 0, color: '#333' }}>Handling order</h4>
-                <span style={{
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    padding: '3px 10px',
-                    borderRadius: '12px',
-                    fontSize: '0.8rem',
-                    fontWeight: 'bold'
-                }}>
+        <div className="order-history-card">
+            <div className="order-card-header">
+                <h4 className="order-card-title">Handling order</h4>
+                <span className="order-status-badge">
                     {order.status}
                 </span>
             </div>
 
-            <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '15px' }}>
+            <div className="order-card-id">
                 ID order: {order.id}
             </div>
 
@@ -127,7 +100,7 @@ export default function OrderHistoryCard({ order, onPriceReport }) {
                     restaurantId={order.restaurantId}
                     userId={order.userId}
                     product={product}
-                    onPriceReport={(prodId, itemTotal) => onPriceReport(order.id, prodId, itemTotal)}
+                    onPriceReport={(prodId, itemTotal) => onPriceReport(prodId, itemTotal)}
                 />
             ))}
         </div>

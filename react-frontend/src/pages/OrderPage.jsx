@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import OrderCard from '../components/OrderCard';
-import { useNavigate } from 'react-router-dom';
+import '../components/Order.css';
 
 export default function OrderPage() {
     const [latestOrder, setLatestOrder] = useState(null);
@@ -43,6 +43,7 @@ export default function OrderPage() {
 
     useEffect(() => {
         fetchActiveCartData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleCardPriceReport = (orderId, cardSum) => {
@@ -75,25 +76,27 @@ export default function OrderPage() {
         }
     };
 
-    if (isLoading) return <div style={{ padding: '20px' }}>Syncing cart details...</div>;
+    if (isLoading) return <div className="order-empty-message">Syncing cart details...</div>;
 
     if (isOrderPlaced) {
         return (
-            <div style={{ padding: '40px', maxWidth: '650px', margin: '0 auto', textAlign: 'center' }}>
-                <div style={{ fontSize: '4rem', color: '#28a745', marginBottom: '20px' }}>✓</div>
-                <h2 style={{ color: '#28a745', marginBottom: '10px' }}>Success!</h2>
-                <p style={{ fontSize: '1.2rem', color: '#333' }}>Your order has been received.</p>
-                <p style={{ color: '#666' }}>The kitchen is currently processing your transaction payload.</p>
+            <div className="order-page-container">
+                <div className="order-success-container">
+                    <div className="order-success-icon">✓</div>
+                    <h2 className="order-success-title">Success!</h2>
+                    <p className="order-success-text">Your order has been received.</p>
+                    <p className="order-success-subtext">The kitchen is currently processing your transaction payload.</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '650px', margin: '0 auto' }}>
-            <h2 style={{ borderBottom: '2px solid #333', paddingBottom: '10px' }}>Shopping Cart Terminal</h2>
+        <div className="order-page-container">
+            <h2 className="order-page-title">Shopping Cart Terminal</h2>
 
             {!latestOrder ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>Your active basket is empty.</p>
+                <p className="order-empty-message">Your active basket is empty.</p>
             ) : (
                 <>
                     <div>
@@ -105,28 +108,13 @@ export default function OrderPage() {
                         />
                     </div>
 
-                    <div style={{
-                        marginTop: '25px',
-                        backgroundColor: '#e9ecef',
-                        padding: '20px',
-                        borderRadius: '6px',
-                        textAlign: 'right'
-                    }}>
-                        <h3 style={{ margin: '0 0 15px 0' }}>
-                            Aggregate Total: <span style={{ color: '#007bff' }}>{totalCartCost.toFixed(2)} ILS</span>
+                    <div className="order-summary-box">
+                        <h3 className="order-summary-total">
+                            Aggregate Total: <span className="order-summary-total-val">{totalCartCost.toFixed(2)} ILS</span>
                         </h3>
                         <button
                             onClick={executeFinalCheckout}
-                            style={{
-                                backgroundColor: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                padding: '12px 24px',
-                                fontSize: '1rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold'
-                            }}
+                            className="order-checkout-btn"
                         >
                             Confirm & Place Order
                         </button>

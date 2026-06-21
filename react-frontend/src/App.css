@@ -9,9 +9,16 @@
 
 body {
   font-family: 'Heebo', sans-serif;
-  background-color: #d9f7ff;
+  background-color: #f0f4f8;
+  color: #202124;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme {
+  background-color: #121212;
+  color: #f1f3f4;
 }
 
 .app-container {
@@ -25,13 +32,18 @@ body {
 }
 
 .page-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: #28526e;
-  margin-bottom: 0.5rem; 
-  margin-top: 0;
+  margin-bottom: 1.5rem; 
+  margin-top: 1.5rem;
   text-align: center;
   width: 100%;
+  transition: color 0.3s ease;
+}
+
+body.dark-theme .page-title {
+  color: #a0c0d8;
 }
 
 .loading {
