@@ -10,6 +10,7 @@ import ProductCard from './components/ProductCard';
 import OrderPage from './pages/OrderPage';
 import HistoryOrdersPage from './pages/HistoryOrdersPage';
 import './styles/App.css';
+import Product from "./pages/Product";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -39,7 +40,7 @@ function App() {
         {/*epic 3*/}
         <Route path="/orders" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
         <Route path="/historyOrders" element={<ProtectedRoute><HistoryOrdersPage /></ProtectedRoute>} />
-
+        <Route path="/restaurant/:restaurantId/products/:id" element={<ProtectedRoute><Product /> </ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

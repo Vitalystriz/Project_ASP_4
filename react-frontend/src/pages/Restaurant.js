@@ -3,37 +3,55 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import '../styles/Restaurant.css';
 
-const Restaurant = ({ searchTerm }) => {
+const Restaurant = ({ searchTerm, addToOrder }) => {
     const { id } = useParams();
     const navigate = useNavigate();
 
     const [restaurant, setRestaurant] = React.useState(null);
     const [filteredMenu, setFilteredMenu] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
-    const [error, setError] = React.useState(false);
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [formData, setFormData] = React.useState({
+        name: '',
+        type: '',
+        price: '',
+        description: ''
+    });
+    const targetUserId = JSON.parse(localStorage.getItem('user'))?.id;
 
     React.useEffect(() => {
         const fetchRestaurantData = async () => {
             try {
                 setLoading(true);
-                setError(false);
 
                 const resResponse = await fetch(`http://localhost:5000/api/restaurants/${id}`);
-                if (!resResponse.ok) throw new Error('Restaurant not found');
-                const restaurantData = await resResponse.json();
-                const productsResponse = await fetch(`http://localhost:5000/api/products?restaurantId=${id}`);
-                if (!productsResponse.ok) throw new Error('Products not found');
-                const productsData = await productsResponse.json();
+                let restaurantData;
+                if (resResponse.ok) {
+                    restaurantData = await resResponse.json();
+                } else {
+                    restaurantData = { _id: id, id: id, name: 'Restaurant Menu', description: '' };
+                }
+
+                const productsResponse = await fetch(`http://localhost:5000/api/restaurants/${id}/products`);
+                // http://localhost:5000/api/restaurants/19e5f07e-0b6b-4c40-bb04-bf91df02e3ee/products
+                let productsData = [];
+
+                if (productsResponse.ok) {
+                    const prodData = await productsResponse.json();
+                    productsData = Array.isArray(prodData) ? prodData : (prodData.data || []);
+                }
+
                 const completeData = {
                     ...restaurantData,
                     menu: productsData
                 };
 
                 setRestaurant(completeData);
-                setFilteredMenu(completeData.menu);
+                setFilteredMenu(productsData);
             } catch (err) {
                 console.error('Error fetching data from server:', err);
-                setError(true);
+                setRestaurant({ _id: id, id: id, name: 'Restaurant Menu', description: '', menu: [] });
+                setFilteredMenu([]);
             } finally {
                 setLoading(false);
             }
@@ -43,32 +61,6 @@ const Restaurant = ({ searchTerm }) => {
             fetchRestaurantData();
         }
     }, [id]);
-
-    // React.useEffect(() => {
-    //     const mockRestaurants = [
-    //         { id: '1', name: 'Bakery', type: 'Coffee/Pastries', description: 'Perfect coffee with perfect pastries', address: 'Ibn Gabirol Street, Tel Aviv' },
-    //         { id: '2', name: 'Sushi Signature', type: 'Japanese / Asian', description: 'High-quality sushi with complementary toppings', address: '10 Yedidya Street, Bnei Brak' },
-    //         { id: '3', name: 'Pizza Papa', type: 'Italian / Pizza', description: 'Perfect pizza with Italian flavors', address: '2 Dizengoff Street, Tel Aviv' },
-    //         { id: '4', name: 'Burger Factory', type: 'Meat / American', description: 'Perfect burgers with complementary toppings', address: '42 Herzl Street, Tel Aviv' }
-    //     ];
-
-    //     const mockMenu = [
-    //         { id: 'm1', restaurantId: '1', name: 'Butter Croissant', type: 'Pastry', price: 18, description: 'Flaky and rich' },
-    //         { id: 'm2', restaurantId: '2', name: 'Salmon Roll', type: 'Sushi', price: 42, description: 'Fresh salmon and avocado' },
-    //         { id: 'm3', restaurantId: '3', name: 'Margherita', type: 'Pizza', price: 55, description: 'Classic Italian tomato and cheese' },
-    //         { id: 'm4', restaurantId: '4', name: 'Classic Burger', type: 'Burger', price: 58, description: 'Premium beef patty' }
-    //     ];
-
-    //     const foundRestaurant = mockRestaurants.find(r => r.id === id);
-        
-    //     if (foundRestaurant) {
-    //         const menuForRes = mockMenu.filter(item => item.restaurantId === id);
-    //         setRestaurant(foundRestaurant);
-    //         setFilteredMenu(menuForRes);
-    //     }
-        
-    //     setLoading(false);
-    // }, [id]);
 
     React.useEffect(() => {
         if (!restaurant || !restaurant.menu) return;
@@ -86,35 +78,120 @@ const Restaurant = ({ searchTerm }) => {
         }
     }, [searchTerm, restaurant]);
 
-    if (loading) return <div className="loading">Loading restaurant menu...</div>;
-    if (error || !restaurant) return (
-        <div className="empty-state-container">
-            <h2>No products found 😕</h2>
-            <button className="back-btn" onClick={() => navigate('/')} style={{ marginTop: '1rem' }}>
-                Back to main list
-            </button>
-        </div>
-    );
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddProduct = async (e) => {
+        e.preventDefault();
+
+        if (!formData.name || !formData.price) {
+            alert("Please fill in at least Product Name and Price!");
+            return;
+        }
+
+        const fallbackProdId = 'prod_' + Date.now().toString();
+        const localProductBackup = {
+            _id: fallbackProdId,
+            id: fallbackProdId,
+            restaurantId: id,
+            name: formData.name,
+            type: formData.type,
+            price: Number(formData.price),
+            description: formData.description
+        };
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/restaurants/${id}/products`, { //Prpblem
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json',
+                    'user-id': targetUserId},
+                body: JSON.stringify({ ...localProductBackup, id: undefined, _id: undefined })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const savedProduct = data._id || data.id ? data : (data.data || localProductBackup);
+
+                setRestaurant(prev => {
+                    const updatedMenu = prev && prev.menu ? [...prev.menu, savedProduct] : [savedProduct];
+                    return { ...prev, menu: updatedMenu };
+                });
+                setFilteredMenu(prev => [...prev, savedProduct]);
+            } else {
+                setRestaurant(prev => {
+                    const updatedMenu = prev && prev.menu ? [...prev.menu, localProductBackup] : [localProductBackup];
+                    return { ...prev, menu: updatedMenu };
+                });
+                setFilteredMenu(prev => [...prev, localProductBackup]);
+            }
+        } catch (err) {
+            console.error('Error saving product:', err);
+            setRestaurant(prev => {
+                const updatedMenu = prev && prev.menu ? [...prev.menu, localProductBackup] : [localProductBackup];
+                return { ...prev, menu: updatedMenu };
+            });
+            setFilteredMenu(prev => [...prev, localProductBackup]);
+        } finally {
+            setFormData({ name: '', type: '', price: '', description: '' });
+            setIsModalOpen(false);
+        }
+    };
+
+    if (loading) return <div className="loading">...</div>;
 
     return (
-        <div className="restaurant-details-page" style={{ direction: 'ltr', textAlign: 'left' }}>
-            <button className="back-btn" onClick={() => navigate('/')}>
-                ← Back to main list
-            </button>
-            <p className="res-details-description">{restaurant.description}</p>
-            <h2 className="menu-title">📋 Menu</h2>
+        <div className="restaurant-details-page">
+            <div className="restaurant-header-row">
+                <div className="header-buttons-container">
+                    <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+                    <button className="back-btn add-product-btn" onClick={() => setIsModalOpen(true)}>+ Add Product</button>
+                </div>
+                <h1 className="page-title">{restaurant?.name || 'Restaurant Menu'}</h1>
+            </div>
+
+            {restaurant?.description && <p className="res-details-description">{restaurant.description}</p>}
 
             <div className="menu-list">
                 {filteredMenu.length > 0 ? (
                     filteredMenu.map((item) => (
-                        <ProductCard key={item._id || item.id} item={item} />
+                        <ProductCard key={item._id || item.id} item={item} restaurantId={id} addToOrder={addToOrder} />
                     ))
                 ) : (
-                    <div className="empty-state-container">
-                        No dishes match your search 😕
-                    </div>
+                    <div className="loading">No products found 😕</div>
                 )}
             </div>
+
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Add New Product</h3>
+                        <form onSubmit={handleAddProduct}>
+                            <div className="modal-form-group">
+                                <label>Product Name *</label>
+                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
+                            </div>
+                            <div className="modal-form-group">
+                                <label>Category / Type</label>
+                                <input type="text" name="type" value={formData.type} onChange={handleInputChange} />
+                            </div>
+                            <div className="modal-form-group">
+                                <label>Price (ILS) *</label>
+                                <input type="number" name="price" value={formData.price} onChange={handleInputChange} required />
+                            </div>
+                            <div className="modal-form-group">
+                                <label>Description</label>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="modal-cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                                <button type="submit" className="modal-submit-btn">Save Product</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
