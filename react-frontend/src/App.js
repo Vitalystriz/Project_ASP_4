@@ -1,32 +1,11 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
-import Navbar from './components/Navbar';
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import OrderPage from "./pages/OrderPage";
-import HistoryOrdersPage from "./pages/HistoryOrdersPage"
-
-const ProtectedRoute = ({ children }) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        return <Navigate to="/login" replace />;
-    }
-    return children;
-};
-
-const Restaurants = () => <div className="container mt-5"><h2>Restaurants Dashboard</h2></div>;
-const RestaurantPage = () => <div className="container mt-5"><h2>Restaurant Menu Page</h2></div>;
-const ProductCard = () => <div className="container mt-5"><h2>Product Details & Recommendations</h2></div>;
-//const OrderPage = () => <div className="container mt-5"><h2>Current Order / Checkout</h2></div>;
-// const HistoryOrdersPage = () => <div className="container mt-5"><h2>Order History</h2></div>;
+import logo from './logo.svg';
+import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      
+
       <Routes>
         <Route path="/" element={<Home />} />
         {/*epic 1*/}
@@ -40,7 +19,7 @@ function App() {
         {/*epic 3*/}
         <Route path="/orders" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
         <Route path="/historyOrders" element={<ProtectedRoute><HistoryOrdersPage /></ProtectedRoute>} />
-        
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

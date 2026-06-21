@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import logo from '../assets/Volt_Logo.png'; 
-
-const Navbar = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [userData, setUserData] = useState({ name: '', avatar: '' });
-  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userString = localStorage.getItem('user');
-    
+
     setIsLoggedIn(!!token);
 
     if (token && userString) {
@@ -52,14 +42,14 @@ const Navbar = () => {
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img src={logo} alt="Volt Logo" height="40" className="d-inline-block align-top" />
         </Link>
-        
+
         <div className="collapse navbar-collapse d-flex justify-content-between">
           <ul className="navbar-nav">
             <li className="nav-item">
               <Link className="nav-link" to="/restaurants">Restaurants</Link>
             </li>
           </ul>
-          
+
           <div className="d-flex align-items-center">
             {isLoggedIn ? (
               <>
@@ -71,7 +61,7 @@ const Navbar = () => {
                 </Link>
                 <img src={userData.avatar} alt="Avatar" className="rounded-circle me-2" style={{ width: '30px', height: '30px', objectFit: 'cover' }} />
                 <span className="text-light me-3">{userData.name}</span>
-                
+
                 <button className="btn btn-outline-info btn-sm me-3" onClick={toggleTheme}>
                     {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
                 </button>
@@ -89,6 +79,26 @@ const Navbar = () => {
       </div>
     </nav>
   );
+    return (
+        <nav className="navbar">
+            <div className="navbar-inner">
+                <div className="navbar-address-delivery">
+                    <span className="address-icon">📍</span>
+                    <div className="address-text">
+                        <span className="address-label">Delivering To:</span>
+                        <span className="address-value">{userAddress}</span>
+                    </div>
+                </div>
+                <div className="navbar-search-section">
+                    <SearchBar
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder={currentPlaceholder}
+                    />
+                </div>
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;
