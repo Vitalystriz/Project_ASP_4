@@ -156,7 +156,7 @@ const Restaurant = ({ searchTerm, addToOrder }) => {
             <div className="menu-list">
                 {filteredMenu.length > 0 ? (
                     filteredMenu.map((item) => (
-                        <ProductCard key={item._id || item.id} item={item} addToOrder={addToOrder} />
+                        <ProductCard key={item._id || item.id} item={item} restaurantId={id} addToOrder={addToOrder} />
                     ))
                 ) : (
                     <div className="loading">No products found 😕</div>
