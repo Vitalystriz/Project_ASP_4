@@ -66,6 +66,9 @@ const Navbar = () => {
                 <Link className="btn btn-warning btn-sm me-4 fw-bold" to="/orders">
                   🛒 Go to Cart
                 </Link>
+                <Link className="btn btn-warning btn-sm me-4 fw-bold" to="/historyOrders">
+                      Order's history
+                </Link>
                 <img src={userData.avatar} alt="Avatar" className="rounded-circle me-2" style={{ width: '30px', height: '30px', objectFit: 'cover' }} />
                 <span className="text-light me-3">{userData.name}</span>
                 

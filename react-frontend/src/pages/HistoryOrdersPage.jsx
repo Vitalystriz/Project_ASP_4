@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import OrderCard from '../components/OrderCard';
+import OrderCard from '../components/OrderHistoryCard';
 import { useNavigate } from 'react-router-dom';
 
 export default function OrderPage() {
-    const [latestOrder, setLatestOrder] = useState(null);
+    const [orders, setOrders] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [totalCartCost, setTotalCartCost] = useState(0);
     const [isOrderPlaced, setIsOrderPlaced] = useState(false);
@@ -24,14 +24,13 @@ export default function OrderPage() {
                 const payload = await response.json();
 
                 const activeItems = payload.filter(
-                    item => item.status === 'created' && item.userId === targetUserId
+                    item => item.status === 'in service' && item.userId === targetUserId
                 );
 
                 if (activeItems.length > 0) {
-                    const mostRecent = activeItems[activeItems.length - 1];
-                    setLatestOrder(mostRecent);
+                    setOrders(activeItems)
                 } else {
-                    setLatestOrder(null);
+                    setOrders(null);
                 }
             }
         } catch (error) {
@@ -45,35 +44,8 @@ export default function OrderPage() {
         fetchActiveCartData();
     }, []);
 
-    const handleCardPriceReport = (orderId, cardSum) => {
-        setTotalCartCost(cardSum);
-    };
 
-    const executeFinalCheckout = async () => {
-        if (!latestOrder) return;
-        setIsLoading(true);
 
-        try {
-            const response = await fetch(`http://localhost:5000/api/orders/${latestOrder.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'user-id': targetUserId
-                },
-                body: JSON.stringify({
-                    status: "in service"
-                })
-            });
-
-            if (response.ok) {
-                setIsOrderPlaced(true);
-            }
-        } catch (error) {
-            console.error("Checkout validation failure:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     if (isLoading) return <div style={{ padding: '20px' }}>Syncing cart details...</div>;
 
@@ -92,17 +64,19 @@ export default function OrderPage() {
         <div style={{ padding: '20px', maxWidth: '650px', margin: '0 auto' }}>
             <h2 style={{ borderBottom: '2px solid #333', paddingBottom: '10px' }}>Shopping Cart Terminal</h2>
 
-            {!latestOrder ? (
+            {!orders || orders.length === 0 ? (
                 <p style={{ color: '#666', fontStyle: 'italic' }}>Your active basket is empty.</p>
             ) : (
                 <>
                     <div>
-                        <OrderCard
-                            key={latestOrder.id}
-                            order={latestOrder}
-                            onPriceReport={handleCardPriceReport}
-                            onUpdateRequired={fetchActiveCartData}
-                        />
+                        {orders.map((singleOrder) => (
+                            <OrderCard
+                                key={singleOrder.id}
+                                order={singleOrder}
+                            />
+                        ))
+                        }
+
                     </div>
 
                     <div style={{
@@ -115,21 +89,7 @@ export default function OrderPage() {
                         <h3 style={{ margin: '0 0 15px 0' }}>
                             Aggregate Total: <span style={{ color: '#007bff' }}>{totalCartCost.toFixed(2)} ILS</span>
                         </h3>
-                        <button
-                            onClick={executeFinalCheckout}
-                            style={{
-                                backgroundColor: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                padding: '12px 24px',
-                                fontSize: '1rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold'
-                            }}
-                        >
-                            Confirm & Place Order
-                        </button>
+
                     </div>
                 </>
             )}
