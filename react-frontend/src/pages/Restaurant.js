@@ -3,14 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import '../styles/Restaurant.css';
 
-const Restaurant = ({ searchTerm }) => {
+const Restaurant = ({ searchTerm, addToOrder }) => {
     const { id } = useParams();
     const navigate = useNavigate();
 
     const [restaurant, setRestaurant] = React.useState(null);
     const [filteredMenu, setFilteredMenu] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
-    const [error, setError] = React.useState(false);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [formData, setFormData] = React.useState({
         name: '',
@@ -18,75 +17,49 @@ const Restaurant = ({ searchTerm }) => {
         price: '',
         description: ''
     });
-
-    // React.useEffect(() => {
-    //     const fetchRestaurantData = async () => {
-    //         try {
-    //             setLoading(true);
-    //             setError(false);
-    //             const resResponse = await fetch(`http://localhost:5000/api/restaurants/${id}`);
-    //             if (!resResponse.ok) throw new Error('Restaurant not found');
-    //             const restaurantData = await resResponse.json();
-    //             const productsResponse = await fetch(`http://localhost:5000/api/products?restaurantId=${id}`);
-    //             if (!productsResponse.ok) throw new Error('Products not found');
-    //             const productsData = await productsResponse.json();
-    //             const completeData = {
-    //                 ...restaurantData,
-    //                 menu: productsData
-    //             };
-    //             setRestaurant(completeData);
-    //             setFilteredMenu(completeData.menu);
-    //         } catch (err) {
-    //             console.error('Error fetching data from server:', err);
-    //             setError(true);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     if (id) {
-    //         fetchRestaurantData();
-    //     }
-    // }, [id]);
+    const targetUserId = JSON.parse(localStorage.getItem('user'))?.id;
 
     React.useEffect(() => {
-        const mockRestaurants = [
-            { id: '1', name: 'Bakery', type: 'Coffee/Pastries', description: 'Perfect coffee with perfect pastries', address: 'Ibn Gabirol Street, Tel Aviv' },
-            { id: '2', name: 'Sushi Signature', type: 'Japanese / Asian', description: 'High-quality sushi with complementary toppings', address: '10 Yedidya Street, Bnei Brak' },
-            { id: '3', name: 'Pizza Papa', type: 'Italian / Pizza', description: 'Perfect pizza with Italian flavors', address: '2 Dizengoff Street, Tel Aviv' },
-            { id: '4', name: 'Burger Factory', type: 'Meat / American', description: 'Perfect burgers with complementary toppings', address: '42 Herzl Street, Tel Aviv' }
-        ];
+        const fetchRestaurantData = async () => {
+            try {
+                setLoading(true);
 
-        const mockMenu = [
-            { id: 'm1', restaurantId: '1', name: 'Butter Croissant', type: 'Pastry', price: 18, description: 'Flaky, buttery and rich French classic' },
-            { id: 'm5', restaurantId: '1', name: 'Iced Latte', type: 'Drinks', price: 15, description: 'Chilled espresso with fresh milk over ice' },
-            { id: 'm6', restaurantId: '1', name: 'Chocolate Babka', type: 'Pastry', price: 35, description: 'Sweet braided yeast cake with rich chocolate filling' },
-            { id: 'm2', restaurantId: '2', name: 'Salmon Roll', type: 'Sushi', price: 42, description: 'Fresh salmon, avocado, and cucumber topped with sesame' },
-            { id: 'm7', restaurantId: '2', name: 'Spicy Tuna Roll', type: 'Sushi', price: 45, description: 'Spicy minced tuna, green onion, and spicy mayo' },
-            { id: 'm8', restaurantId: '2', name: 'Veggie Combo', type: 'Sushi', price: 38, description: 'Sweet potato, cucumber, carrot and avocado roll' },
-            { id: 'm9', restaurantId: '2', name: 'Miso Soup', type: 'Appetizer', price: 16, description: 'Traditional Japanese soup with tofu and seaweed' },
-            { id: 'm3', restaurantId: '3', name: 'Margherita Pizza', type: 'Pizza', price: 55, description: 'Classic Italian tomato sauce, fresh mozzarella, and basil' },
-            { id: 'm10', restaurantId: '3', name: 'Garlic Bread', type: 'Appetizer', price: 22, description: 'Toasted baguette with garlic butter and herbs' },
-            { id: 'm4', restaurantId: '4', name: 'Classic Burger', type: 'Burger', price: 58, description: 'Premium beef patty, lettuce, tomato, and factory sauce' },
-            { id: 'm11', restaurantId: '4', name: 'BBQ Bacon Burger', type: 'Burger', price: 65, description: 'Crispy bacon, cheddar cheese, onion rings, and smoky BBQ sauce' },
-            { id: 'm12', restaurantId: '4', name: 'French Fries', type: 'Sides', price: 18, description: 'Golden, crispy, perfectly salted thin-cut potatoes' },
-            { id: 'm13', restaurantId: '4', name: 'Onion Rings', type: 'Sides', price: 24, description: 'Crunchy battered onion rings served with dip' }
-        ];
+                const resResponse = await fetch(`http://localhost:5000/api/restaurants/${id}`);
+                let restaurantData;
+                if (resResponse.ok) {
+                    restaurantData = await resResponse.json();
+                } else {
+                    restaurantData = { _id: id, id: id, name: 'Restaurant Menu', description: '' };
+                }
 
-        const foundRestaurant = mockRestaurants.find(r => r.id === id);
+                const productsResponse = await fetch(`http://localhost:5000/api/restaurants/${id}/products`);
+                // http://localhost:5000/api/restaurants/19e5f07e-0b6b-4c40-bb04-bf91df02e3ee/products
+                let productsData = [];
 
-        if (foundRestaurant) {
-            const menuForRes = mockMenu.filter(item => item.restaurantId === id);
-            const completeRestaurantData = {
-                ...foundRestaurant,
-                menu: menuForRes
-            };
-            setRestaurant(completeRestaurantData);
-            setFilteredMenu(menuForRes);
-        } else {
-            setError(true);
+                if (productsResponse.ok) {
+                    const prodData = await productsResponse.json();
+                    productsData = Array.isArray(prodData) ? prodData : (prodData.data || []);
+                }
+
+                const completeData = {
+                    ...restaurantData,
+                    menu: productsData
+                };
+
+                setRestaurant(completeData);
+                setFilteredMenu(productsData);
+            } catch (err) {
+                console.error('Error fetching data from server:', err);
+                setRestaurant({ _id: id, id: id, name: 'Restaurant Menu', description: '', menu: [] });
+                setFilteredMenu([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchRestaurantData();
         }
-
-        setLoading(false);
     }, [id]);
 
     React.useEffect(() => {
@@ -110,132 +83,111 @@ const Restaurant = ({ searchTerm }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleAddProduct = (e) => {
+    const handleAddProduct = async (e) => {
         e.preventDefault();
 
         if (!formData.name || !formData.price) {
             alert("Please fill in at least Product Name and Price!");
             return;
         }
-        const newProduct = {
-            id: 'm_' + Date.now().toString(),
+
+        const fallbackProdId = 'prod_' + Date.now().toString();
+        const localProductBackup = {
+            _id: fallbackProdId,
+            id: fallbackProdId,
             restaurantId: id,
             name: formData.name,
             type: formData.type,
             price: Number(formData.price),
             description: formData.description
         };
-        setRestaurant(prev => ({
-            ...prev,
-            menu: [...prev.menu, newProduct]
-        }));
 
-        setFormData({ name: '', type: '', price: '', description: '' });
-        setIsModalOpen(false);
+        try {
+            const response = await fetch(`http://localhost:5000/api/restaurants/${id}/products`, { //Prpblem
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json',
+                    'user-id': targetUserId},
+                body: JSON.stringify({ ...localProductBackup, id: undefined, _id: undefined })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const savedProduct = data._id || data.id ? data : (data.data || localProductBackup);
+
+                setRestaurant(prev => {
+                    const updatedMenu = prev && prev.menu ? [...prev.menu, savedProduct] : [savedProduct];
+                    return { ...prev, menu: updatedMenu };
+                });
+                setFilteredMenu(prev => [...prev, savedProduct]);
+            } else {
+                setRestaurant(prev => {
+                    const updatedMenu = prev && prev.menu ? [...prev.menu, localProductBackup] : [localProductBackup];
+                    return { ...prev, menu: updatedMenu };
+                });
+                setFilteredMenu(prev => [...prev, localProductBackup]);
+            }
+        } catch (err) {
+            console.error('Error saving product:', err);
+            setRestaurant(prev => {
+                const updatedMenu = prev && prev.menu ? [...prev.menu, localProductBackup] : [localProductBackup];
+                return { ...prev, menu: updatedMenu };
+            });
+            setFilteredMenu(prev => [...prev, localProductBackup]);
+        } finally {
+            setFormData({ name: '', type: '', price: '', description: '' });
+            setIsModalOpen(false);
+        }
     };
 
     if (loading) return <div className="loading">...</div>;
-    if (error || !restaurant) return (
-        <div className="empty-state-container">
-            <h2>No products found 😕</h2>
-            <button className="back-btn" onClick={() => navigate('/')}>
-                Back to main list
-            </button>
-        </div>
-    );
 
     return (
         <div className="restaurant-details-page">
-            {/* שורת הכותרת המעודכנת שמחזיקה את שני הכפתורים בשמאל ואת שם המסעדה במרכז */}
             <div className="restaurant-header-row">
-
-                {/* מיכל שמאלי המאגד את שני הכפתורים זה לצד זה */}
                 <div className="header-buttons-container">
-                    <button className="back-btn" onClick={() => navigate('/')}>
-                        ← Back
-                    </button>
-                    <button className="back-btn add-product-btn" onClick={() => setIsModalOpen(true)}>
-                        + Add Product
-                    </button>
+                    <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+                    <button className="back-btn add-product-btn" onClick={() => setIsModalOpen(true)}>+ Add Product</button>
                 </div>
-                <h1 className="page-title">{restaurant.name}</h1>
+                <h1 className="page-title">{restaurant?.name || 'Restaurant Menu'}</h1>
             </div>
-            <p className="res-details-description">{restaurant.description}</p>
-            <h2 className="page-title" style={{ marginTop: '2rem' }}>📋 Menu</h2>
+
+            {restaurant?.description && <p className="res-details-description">{restaurant.description}</p>}
+
             <div className="menu-list">
                 {filteredMenu.length > 0 ? (
                     filteredMenu.map((item) => (
-                        <ProductCard key={item._id || item.id} item={item} />
+                        <ProductCard key={item._id || item.id} item={item} addToOrder={addToOrder} />
                     ))
                 ) : (
-                    <div className="loading">
-                        No product found 😕
-                    </div>
+                    <div className="loading">No products found 😕</div>
                 )}
             </div>
-            <button className="back-btn" onClick={() => navigate('/')} style={{ position: 'static', display: 'block', margin: '2rem auto' }}>
-                ← Back
-            </button>
+
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h3>Add New Product</h3>
                         <form onSubmit={handleAddProduct}>
-
                             <div className="modal-form-group">
                                 <label>Product Name *</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., Hot Fudge Sundae"
-                                    required
-                                />
+                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
                             </div>
-
                             <div className="modal-form-group">
                                 <label>Category / Type</label>
-                                <input
-                                    type="text"
-                                    name="type"
-                                    value={formData.type}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., Desserts"
-                                />
+                                <input type="text" name="type" value={formData.type} onChange={handleInputChange} />
                             </div>
-
                             <div className="modal-form-group">
                                 <label>Price (ILS) *</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., 28"
-                                    required
-                                />
+                                <input type="number" name="price" value={formData.price} onChange={handleInputChange} required />
                             </div>
-
                             <div className="modal-form-group">
                                 <label>Description</label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Describe the product or ingredients..."
-                                />
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} />
                             </div>
-
                             <div className="modal-actions">
-                                <button type="button" className="modal-cancel-btn" onClick={() => setIsModalOpen(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="modal-submit-btn">
-                                    Save Product
-                                </button>
+                                <button type="button" className="modal-cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                                <button type="submit" className="modal-submit-btn">Save Product</button>
                             </div>
-
                         </form>
                     </div>
                 </div>

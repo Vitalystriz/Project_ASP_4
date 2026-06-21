@@ -14,7 +14,7 @@ const Restaurants = ({ searchTerm }) => {
         description: '',
         address: ''
     });
-
+    const targetUserId = JSON.parse(localStorage.getItem('user'))?.id;
     React.useEffect(() => {
         const fetchRestaurants = async () => {
             try {
@@ -54,14 +54,17 @@ const Restaurants = ({ searchTerm }) => {
         try {
             const response = await fetch('http://localhost:5000/api/restaurants', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'user-id': targetUserId
+                },
                 body: JSON.stringify(formData)
             });
 
             if (response.ok) {
                 const data = await response.json();
                 const savedRestaurant = data._id || data.id ? data : (data.data || localBackup);
-                
+
                 setRestaurants(prev => [...prev, savedRestaurant]);
                 setFilteredRestaurants(prev => [...prev, savedRestaurant]);
             } else {
