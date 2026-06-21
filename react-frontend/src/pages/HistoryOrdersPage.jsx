@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import OrderCard from '../components/OrderHistoryCard';
-import '../components/Order.css';
+import '../styles/Order.css';
 
 export default function HistoryOrdersPage() {
     const [orders, setOrders] = useState(null);

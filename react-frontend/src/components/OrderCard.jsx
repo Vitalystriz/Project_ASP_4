@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './Order.css';
+import '../styles/Order.css';
 
 const OrderItem = ({ orderId, restaurantId, userId, product, onPriceReport, onUpdateRequired }) => {
     const [productDetails, setProductDetails] = useState(null);
@@ -158,9 +158,7 @@ export default function OrderCard({ order, onPriceReport, onUpdateRequired }) {
             <div className="order-card-header">
                 <h4 className="order-card-title">Active Checkout Invoice</h4>
             </div>
-            <div className="order-card-id">
-                Order ID: {order.id}
-            </div>
+
 
             {order.products && order.products.map(product => (
                 <OrderItem

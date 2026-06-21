@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import OrderCard from '../components/OrderCard';
-import '../components/Order.css';
+import '../styles/Order.css';
 
 export default function OrderPage() {
     const [latestOrder, setLatestOrder] = useState(null);

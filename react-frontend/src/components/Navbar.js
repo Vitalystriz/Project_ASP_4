@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/Volt_Logo.png'; 
 import SearchBar from './SearchBar';
-import './Navbar.css';
+import '../styles/Navbar.css';
 
 const Navbar = ({ searchTerm, setSearchTerm }) => {
   const navigate = useNavigate();

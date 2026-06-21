@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import './Restaurant.css';
+import '../styles/Restaurant.css';
 
 const Restaurant = ({ searchTerm }) => {
     const { id } = useParams();

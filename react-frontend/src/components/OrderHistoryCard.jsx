@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './Order.css';
+import '../styles/Order.css';
 
 const OrderHistoryItem = ({ restaurantId, userId, product, onPriceReport }) => {
     const [productDetails, setProductDetails] = useState(null);
@@ -90,9 +90,7 @@ export default function OrderHistoryCard({ order, onPriceReport }) {
                 </span>
             </div>
 
-            <div className="order-card-id">
-                ID order: {order.id}
-            </div>
+
 
             {order.products && order.products.map(product => (
                 <OrderHistoryItem

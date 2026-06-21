@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './RestaurantCard.css';
+import '../styles/RestaurantCard.css';
 
 const RestaurantCard = ({ restaurant }) => {
     const navigate = useNavigate();

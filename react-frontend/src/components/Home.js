@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from '../assets/Volt_Logo.png'; 
-import './Home.css';
+import '../styles/Home.css';
 
 const Home = () => {
   return (

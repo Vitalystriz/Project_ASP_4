@@ -9,7 +9,7 @@ import RestaurantPage from './pages/Restaurant';
 import ProductCard from './components/ProductCard';
 import OrderPage from './pages/OrderPage';
 import HistoryOrdersPage from './pages/HistoryOrdersPage';
-import './App.css';
+import './styles/App.css';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');

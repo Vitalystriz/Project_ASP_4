@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Auth.css';
+import '../styles/Auth.css';
 
 const Register = () => {
     const [displayName, setDisplayName] = useState('');

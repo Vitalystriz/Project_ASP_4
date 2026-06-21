@@ -1,6 +1,6 @@
 import React from 'react';
 import RestaurantCard from '../components/RestaurantCard';
-import './Restaurants.css';
+import '../styles/Restaurants.css';
 
 // const mockRestaurants = [
 //     { id: '1', name: 'Bakery', type: 'Coffee/Pastries', description: 'Perfect coffee with perfect pastries', address: 'Ibn Gabirol Street, Tel Aviv' },
