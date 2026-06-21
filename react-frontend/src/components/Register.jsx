@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import '../styles/Auth.css';
 
 const Register = () => {
     const [displayName, setDisplayName] = useState('');
@@ -22,7 +23,6 @@ const Register = () => {
     };
 
     const validateForm = () => {
-
        if (!displayName.trim() || !username.trim() || !password || !verifyPassword || !picture) {
             return "All fields are required, including a profile picture.";
         }
@@ -77,92 +77,89 @@ const Register = () => {
     };
 
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-5">
-                    <div className="card shadow border-0">
-                        <div className="card-body p-4">
-                            <h2 className="text-center mb-4 fw-bold">Sign Up for Volt</h2>
-                            
-                            {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
+        <div className="auth-container">
+            <div className="auth-card" style={{ maxWidth: '460px' }}>
+                <div className="auth-card-body">
+                    <h2 className="auth-title">Sign Up for Volt</h2>
+                    
+                    {error && <div className="auth-alert-error">{error}</div>}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="text-center mb-4">
-                                    <div 
-                                        className="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-2"
-                                        style={{ width: '100px', height: '100px', cursor: 'pointer', overflow: 'hidden', border: '2px dashed #ccc' }}
-                                        onClick={() => fileInputRef.current.click()}
-                                    >
-                                        {picturePreview ? (
-                                            <img src={picturePreview} alt="Profile Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <span className="text-muted small">Upload<br/>Picture</span>
-                                        )}
-                                    </div>
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        className="d-none" 
-                                        ref={fileInputRef} 
-                                        onChange={handlePictureChange} 
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label">Display Name</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        value={displayName}
-                                        onChange={(e) => setDisplayName(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label">Username</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label">Password <small className="text-muted">(Min 8 chars, letters & numbers)</small></label>
-                                    <input 
-                                        type="password" 
-                                        className="form-control" 
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="form-label">Verify Password</label>
-                                    <input 
-                                        type="password" 
-                                        className="form-control" 
-                                        value={verifyPassword}
-                                        onChange={(e) => setVerifyPassword(e.target.value)}
-                                        required 
-                                    />
-                                </div>
-
-                                <button type="submit" className="btn btn-success w-100 fw-bold py-2">
-                                    Create Account
-                                </button>
-                            </form>
-
-                            <div className="text-center mt-3">
-                                <small className="text-muted">
-                                    Already have an account? <a href="/login" className="text-decoration-none">Login</a>
-                                </small>
+                    <form onSubmit={handleSubmit}>
+                        <div className="avatar-uploader-container">
+                            <div 
+                                className="avatar-preview-circle"
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                {picturePreview ? (
+                                    <img src={picturePreview} alt="Profile Preview" className="avatar-preview-img" />
+                                ) : (
+                                    <span className="avatar-upload-text">Upload<br/>Picture</span>
+                                )}
                             </div>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                ref={fileInputRef} 
+                                onChange={handlePictureChange} 
+                            />
                         </div>
+
+                        <div className="auth-form-group">
+                            <label className="auth-label">Display Name</label>
+                            <input 
+                                type="text" 
+                                className="auth-input" 
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <div className="auth-form-group">
+                            <label className="auth-label">Username</label>
+                            <input 
+                                type="text" 
+                                className="auth-input" 
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <div className="auth-form-group">
+                            <label className="auth-label">
+                                Password <span className="auth-label-hint">(Min 8 chars, letters & numbers)</span>
+                            </label>
+                            <input 
+                                type="password" 
+                                className="auth-input" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <div className="auth-form-group">
+                            <label className="auth-label">Verify Password</label>
+                            <input 
+                                type="password" 
+                                className="auth-input" 
+                                value={verifyPassword}
+                                onChange={(e) => setVerifyPassword(e.target.value)}
+                                required 
+                            />
+                        </div>
+
+                        <button type="submit" className="auth-btn auth-btn-success">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div className="auth-footer">
+                        <span>
+                            Already have an account? <Link to="/login" className="auth-link">Login</Link>
+                        </span>
                     </div>
                 </div>
             </div>

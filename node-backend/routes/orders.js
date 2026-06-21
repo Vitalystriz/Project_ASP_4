@@ -7,7 +7,7 @@ const authentication = require('../services/authMiddleware')
 const verifyAuth = authentication.verifyAuth
 
 
-router.get('/', orderController.getAllOrders);
+router.get('/', orderController.getAllOrders); //verifyauth
 router.post('/', verifyAuth, orderController.createOrder);
 
 router.get('/:id', verifyAuth, orderController.getOrderById);
