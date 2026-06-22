@@ -10,7 +10,8 @@ const Register = () => {
     const [picture, setPicture] = useState(null);
     const [picturePreview, setPicturePreview] = useState(null);
     const [error, setError] = useState('');
-    
+    const [x, setX] = useState('');
+    const [y, setY] = useState('');
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
@@ -23,7 +24,7 @@ const Register = () => {
     };
 
     const validateForm = () => {
-       if (!displayName.trim() || !username.trim() || !password || !verifyPassword || !picture) {
+        if (!displayName.trim() || !username.trim() || !password || !verifyPassword || !picture) {
             return "All fields are required, including a profile picture.";
         }
 
@@ -39,6 +40,9 @@ const Register = () => {
         }
         if (password !== verifyPassword) {
             return "Passwords do not match.";
+        }
+        if (!displayName.trim() || !username.trim() || !password || !verifyPassword || !picture || !x.trim() || !y.trim()) {
+            return "All fields are required, including location coordinates and profile picture.";
         }
         return null;
     };
@@ -59,6 +63,8 @@ const Register = () => {
             formData.append('username', username);
             formData.append('password', password);
             formData.append('picture', picture);
+            formData.append('x', x);
+            formData.append('y', y);
 
             const response = await fetch('http://localhost:5000/api/users', {
                 method: 'POST',
@@ -81,49 +87,49 @@ const Register = () => {
             <div className="auth-card" style={{ maxWidth: '460px' }}>
                 <div className="auth-card-body">
                     <h2 className="auth-title">Sign Up for Volt</h2>
-                    
+
                     {error && <div className="auth-alert-error">{error}</div>}
 
                     <form onSubmit={handleSubmit}>
                         <div className="avatar-uploader-container">
-                            <div 
+                            <div
                                 className="avatar-preview-circle"
                                 onClick={() => fileInputRef.current.click()}
                             >
                                 {picturePreview ? (
                                     <img src={picturePreview} alt="Profile Preview" className="avatar-preview-img" />
                                 ) : (
-                                    <span className="avatar-upload-text">Upload<br/>Picture</span>
+                                    <span className="avatar-upload-text">Upload<br />Picture</span>
                                 )}
                             </div>
-                            <input 
-                                type="file" 
-                                accept="image/*" 
-                                style={{ display: 'none' }} 
-                                ref={fileInputRef} 
-                                onChange={handlePictureChange} 
+                            <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                ref={fileInputRef}
+                                onChange={handlePictureChange}
                             />
                         </div>
 
                         <div className="auth-form-group">
                             <label className="auth-label">Display Name</label>
-                            <input 
-                                type="text" 
-                                className="auth-input" 
+                            <input
+                                type="text"
+                                className="auth-input"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
-                                required 
+                                required
                             />
                         </div>
 
                         <div className="auth-form-group">
                             <label className="auth-label">Username</label>
-                            <input 
-                                type="text" 
-                                className="auth-input" 
+                            <input
+                                type="text"
+                                className="auth-input"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                required 
+                                required
                             />
                         </div>
 
@@ -131,26 +137,48 @@ const Register = () => {
                             <label className="auth-label">
                                 Password <span className="auth-label-hint">(Min 8 chars, letters & numbers)</span>
                             </label>
-                            <input 
-                                type="password" 
-                                className="auth-input" 
+                            <input
+                                type="password"
+                                className="auth-input"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                required 
+                                required
                             />
                         </div>
 
                         <div className="auth-form-group">
                             <label className="auth-label">Verify Password</label>
-                            <input 
-                                type="password" 
-                                className="auth-input" 
+                            <input
+                                type="password"
+                                className="auth-input"
                                 value={verifyPassword}
                                 onChange={(e) => setVerifyPassword(e.target.value)}
-                                required 
+                                required
+                            />
+                        </div>
+                        <div className="auth-form-group">
+                            <label className="auth-label">Location Coordinate X</label>
+                            <input
+                                type="number"
+                                step="any"
+                                className="auth-input"
+                                value={x}
+                                onChange={(e) => setX(e.target.value)}
+                                required
                             />
                         </div>
 
+                        <div className="auth-form-group">
+                            <label className="auth-label">Location Coordinate Y</label>
+                            <input
+                                type="number"
+                                step="any"
+                                className="auth-input"
+                                value={y}
+                                onChange={(e) => setY(e.target.value)}
+                                required
+                            />
+                        </div>
                         <button type="submit" className="auth-btn auth-btn-success">
                             Create Account
                         </button>

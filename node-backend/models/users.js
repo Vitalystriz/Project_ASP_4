@@ -2,14 +2,16 @@ const crypto = require('crypto');
 
 const users = [];
 
-const createUser = (displayName, username, password, profilePic) => {
+const createUser = (displayName, username, password, profilePic, x, y) => {
     const user = {
         id: crypto.randomUUID(),
         displayName: displayName,
         username: username,
         password: password,
         profilePic: profilePic,
-        authorized: false
+        authorized: false,
+        x: parseFloat(x), 
+        y: parseFloat(y)
     };
     users.push(user);
     return user;

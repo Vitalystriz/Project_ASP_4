@@ -29,11 +29,10 @@ const Restaurant = ({ searchTerm, addToOrder }) => {
                 if (resResponse.ok) {
                     restaurantData = await resResponse.json();
                 } else {
-                    restaurantData = { _id: id, id: id, name: 'Restaurant Menu', description: '' };
+                    restaurantData = { _id: id, id: id, name: 'Restaurant Menu', description: '', x: 0, y: 0 };
                 }
 
                 const productsResponse = await fetch(`http://localhost:5000/api/restaurants/${id}/products`);
-                // http://localhost:5000/api/restaurants/19e5f07e-0b6b-4c40-bb04-bf91df02e3ee/products
                 let productsData = [];
 
                 if (productsResponse.ok) {
@@ -50,7 +49,7 @@ const Restaurant = ({ searchTerm, addToOrder }) => {
                 setFilteredMenu(productsData);
             } catch (err) {
                 console.error('Error fetching data from server:', err);
-                setRestaurant({ _id: id, id: id, name: 'Restaurant Menu', description: '', menu: [] });
+                setRestaurant({ _id: id, id: id, name: 'Restaurant Menu', description: '', x: 0, y: 0, menu: [] });
                 setFilteredMenu([]);
             } finally {
                 setLoading(false);
@@ -103,7 +102,7 @@ const Restaurant = ({ searchTerm, addToOrder }) => {
         };
 
         try {
-            const response = await fetch(`http://localhost:5000/api/restaurants/${id}/products`, { //Prpblem
+            const response = await fetch(`http://localhost:5000/api/restaurants/${id}/products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json',
                     'user-id': targetUserId},
@@ -145,13 +144,18 @@ const Restaurant = ({ searchTerm, addToOrder }) => {
         <div className="restaurant-details-page">
             <div className="restaurant-header-row">
                 <div className="header-buttons-container">
-                    <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+                    <button className="back-btn" onClick={() => navigate('/restaurants')}>← Back</button>
                     <button className="back-btn add-product-btn" onClick={() => setIsModalOpen(true)}>+ Add Product</button>
                 </div>
                 <h1 className="page-title">{restaurant?.name || 'Restaurant Menu'}</h1>
             </div>
 
             {restaurant?.description && <p className="res-details-description">{restaurant.description}</p>}
+            {restaurant?.x !== undefined && restaurant?.y !== undefined && (
+                <p className="res-details-coords" style={{ padding: '0 20px', color: '#666' }}>
+                    📍 Coordinates: ({restaurant.x}, {restaurant.y})
+                </p>
+            )}
 
             <div className="menu-list">
                 {filteredMenu.length > 0 ? (
