@@ -81,3 +81,26 @@
 .add-to-order-btn:hover {
   background-color: #009cb2;
 }
+
+/* Recommendations Section */
+.recommendations-section {
+  margin-top: 2.5rem;
+  width: 100%;
+}
+
+.recommendations-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #28526e;
+  margin-bottom: 1rem;
+  text-align: left;
+  border-left: 4px solid #00c2e8;
+  padding-left: 10px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}

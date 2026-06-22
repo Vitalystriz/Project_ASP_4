@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
 import '../styles/Product.css';
 const Product = ({ addToOrder }) => {
 
@@ -9,10 +10,11 @@ const Product = ({ addToOrder }) => {
     const [product, setProduct] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(false);
+    const [recommendations, setRecommendations] = React.useState([]);
 
     const targetUserId = JSON.parse(localStorage.getItem('user'))?.id;
 
-    const isRecommended = (item) => item && item.price < 40;
+
 
     React.useEffect(() => {
         const fetchProductData = async () => {
@@ -53,7 +55,49 @@ const Product = ({ addToOrder }) => {
 
 
         if (restaurantId && id) fetchProductData();
-    }, [restaurantId, id]);
+    }, [restaurantId, id, targetUserId]);
+
+    React.useEffect(() => {
+        const fetchRecommendationsData = async () => {
+            if (!restaurantId || !id || !targetUserId || !product) return;
+            try {
+                const response = await fetch(`http://localhost:5000/api/restaurants/${restaurantId}/products/${id}/recommendations`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'user-id': targetUserId
+                    }
+                });
+
+                if (response.ok) {
+                    const payload = await response.json();
+                    const recIds = payload.data || [];
+                    
+                    const recPromises = recIds.map(async (recId) => {
+                        try {
+                            const searchRes = await fetch(`http://localhost:5000/api/search/${recId}`);
+                            if (searchRes.ok) {
+                                const searchData = await searchRes.json();
+                                if (searchData.products && searchData.products.length > 0) {
+                                    return searchData.products.find(p => p.id === recId || p._id === recId);
+                                }
+                            }
+                        } catch (err) {
+                            console.error(`Error fetching recommendation details for product ID ${recId}:`, err);
+                        }
+                        return null;
+                    });
+                    
+                    const resolvedRecs = await Promise.all(recPromises);
+                    setRecommendations(resolvedRecs.filter(p => p !== null && p !== undefined));
+                }
+            } catch (err) {
+                console.error('Error fetching recommendations:', err);
+            }
+        };
+
+        fetchRecommendationsData();
+    }, [restaurantId, id, targetUserId, product]);
 
     const handleAddToCartClick = async () => {
         if (!product) {
@@ -175,15 +219,22 @@ const Product = ({ addToOrder }) => {
                 )}
                 <p className="product-description">{product.description}</p>
                 <span className="product-price">₪{product.price}</span>
-                {isRecommended(product) && (
-                    <div className="recommendation-badge">
-                        ⭐ Recommended! Best Value
-                    </div>
-                )}
+
                 <button className="add-to-order-btn" onClick={handleAddToCartClick}>
                     Add to cart+
                 </button>
             </div>
+
+            {recommendations.length > 0 && (
+                <div className="recommendations-section">
+                    <h2 className="recommendations-title">Recommended for You</h2>
+                    <div className="recommendations-list">
+                        {recommendations.map((rec) => (
+                            <ProductCard key={rec.id || rec._id} item={rec} restaurantId={rec.restaurantId || restaurantId} />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

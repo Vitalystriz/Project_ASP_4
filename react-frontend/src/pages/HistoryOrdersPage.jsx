@@ -75,11 +75,7 @@ export default function HistoryOrdersPage() {
                         }
                     </div>
 
-                    <div className="order-summary-box">
-                        <h3 className="order-summary-total">
-                            Aggregate Total: <span className="order-summary-total-val">{totalCartCost.toFixed(2)} ILS</span>
-                        </h3>
-                    </div>
+
                 </>
             )}
         </div>

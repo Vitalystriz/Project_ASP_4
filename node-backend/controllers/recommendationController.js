@@ -24,6 +24,14 @@ const getRecommendationsById = async (req, res) => {
         })
     }
     catch (error) {
+        if (error.message && error.message.includes('404 Not Found')) {
+            return res.status(200).json({
+                success: true,
+                userId: req.headers['user-id'],
+                target: req.params.pId,
+                data: []
+            });
+        }
         return res.status(500).json({
             success: false,
             message: error.message
