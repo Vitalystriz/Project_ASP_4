@@ -8,7 +8,11 @@ const Restaurants = ({ searchTerm }) => {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(false);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
-    
+    const [favorites, setFavorites] = React.useState(() => {
+        const saved = localStorage.getItem('favorite_restaurants');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     const [formData, setFormData] = React.useState({
         name: '',
         type: '',
@@ -17,12 +21,40 @@ const Restaurants = ({ searchTerm }) => {
         y: ''
     });
 
-    // 1. שליפת מיקום המשתמש הנוכחי
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
     const targetUserId = user?.id;
     const userX = user?.x !== undefined ? parseFloat(user.x) : null;
     const userY = user?.y !== undefined ? parseFloat(user.y) : null;
+
+    const sortRestaurants = (list, currentFavorites) => {
+        let updatedList = list.map(restaurant => {
+            const restX = parseFloat(restaurant.x) || 0;
+            const restY = parseFloat(restaurant.y) || 0;
+            let distance = undefined;
+            
+            if (userX !== null && userY !== null) {
+                const calcDist = Math.sqrt(Math.pow(userX - restX, 2) + Math.pow(userY - restY, 2));
+                distance = parseFloat(calcDist.toFixed(2));
+            }
+            return { ...restaurant, distance };
+        });
+
+        updatedList.sort((a, b) => {
+            const idA = a.id || a._id;
+            const idB = b.id || b._id;
+            const isFavA = currentFavorites.includes(idA);
+            const isFavB = currentFavorites.includes(idB);
+            if (isFavA && !isFavB) return -1;
+            if (!isFavA && isFavB) return 1;
+            if (a.distance !== undefined && b.distance !== undefined) {
+                return a.distance - b.distance;
+            }
+            return 0;
+        });
+
+        return updatedList;
+    };
 
     React.useEffect(() => {
         const fetchRestaurants = async () => {
@@ -30,32 +62,14 @@ const Restaurants = ({ searchTerm }) => {
                 setLoading(true);
                 setError(false);
                 
-                // קריאה רגילה לשרת
                 const response = await fetch('http://localhost:5000/api/restaurants');
                 if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
-                let actualData = Array.isArray(data) ? data : (data.data || []);
+                const actualData = Array.isArray(data) ? data : (data.data || []);
 
-                // 2. חישוב מרחק ומיון ישירות בפרונט-אנד במידה ויש מיקום משתמש
-                if (userX !== null && userY !== null) {
-                    actualData = actualData.map(restaurant => {
-                        const restX = parseFloat(restaurant.x) || 0;
-                        const restY = parseFloat(restaurant.y) || 0;
-                        const distance = Math.sqrt(
-                            Math.pow(userX - restX, 2) + Math.pow(userY - restY, 2)
-                        );
-                        return {
-                            ...restaurant,
-                            distance: parseFloat(distance.toFixed(2))
-                        };
-                    });
-
-                    // מיון מהקרוב לרחוק
-                    actualData.sort((a, b) => a.distance - b.distance);
-                }
-
-                setRestaurants(actualData);
-                setFilteredRestaurants(actualData);
+                const sorted = sortRestaurants(actualData, favorites);
+                setRestaurants(sorted);
+                setFilteredRestaurants(sorted);
             } catch (err) {
                 console.error('Fetch error:', err);
                 setError(true);
@@ -65,6 +79,20 @@ const Restaurants = ({ searchTerm }) => {
         };
         fetchRestaurants();
     }, [userX, userY]);
+
+    const handleToggleFavorite = (restaurantId) => {
+        let updatedFavorites;
+        if (favorites.includes(restaurantId)) {
+            updatedFavorites = favorites.filter(id => id !== restaurantId);
+        } else {
+            updatedFavorites = [...favorites, restaurantId];
+        }
+        
+        setFavorites(updatedFavorites);
+        localStorage.setItem('favorite_restaurants', JSON.stringify(updatedFavorites));
+        const resorted = sortRestaurants(restaurants, updatedFavorites);
+        setRestaurants(resorted);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -102,26 +130,19 @@ const Restaurants = ({ searchTerm }) => {
                 const data = await response.json();
                 const savedRestaurant = data._id || data.id ? data : (data.data || localBackup);
 
-                // עדכון הרשימה המקומית עם חישוב מרחק למסעדה החדשה
-                let updatedList = [...restaurants, savedRestaurant];
-                if (userX !== null && userY !== null) {
-                    updatedList = updatedList.map(r => {
-                        const distance = Math.sqrt(Math.pow(userX - (parseFloat(r.x) || 0), 2) + Math.pow(userY - (parseFloat(r.y) || 0), 2));
-                        return { ...r, distance: parseFloat(distance.toFixed(2)) };
-                    });
-                    updatedList.sort((a, b) => a.distance - b.distance);
-                }
-
-                setRestaurants(updatedList);
-                setFilteredRestaurants(updatedList);
+                const resorted = sortRestaurants([...restaurants, savedRestaurant], favorites);
+                setRestaurants(resorted);
+                setFilteredRestaurants(resorted);
             } else {
-                setRestaurants(prev => [...prev, localBackup]);
-                setFilteredRestaurants(prev => [...prev, localBackup]);
+                const resorted = sortRestaurants([...restaurants, localBackup], favorites);
+                setRestaurants(resorted);
+                setFilteredRestaurants(resorted);
             }
         } catch (err) {
             console.error('Network/Server error during save:', err);
-            setRestaurants(prev => [...prev, localBackup]);
-            setFilteredRestaurants(prev => [...prev, localBackup]);
+            const resorted = sortRestaurants([...restaurants, localBackup], favorites);
+            setRestaurants(resorted);
+            setFilteredRestaurants(resorted);
         } finally {
             setFormData({ name: '', type: '', description: '', x: '', y: '' });
             setIsModalOpen(false);
@@ -157,9 +178,17 @@ const Restaurants = ({ searchTerm }) => {
                 {error && restaurants.length === 0 ? (
                     <div className="loading">Failed to load restaurants 😕</div>
                 ) : filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map(restaurant => (
-                        <RestaurantCard key={restaurant._id || restaurant.id} restaurant={restaurant} />
-                    ))
+                    filteredRestaurants.map(restaurant => {
+                        const restId = restaurant.id || restaurant._id;
+                        return (
+                            <RestaurantCard 
+                                key={restId} 
+                                restaurant={restaurant} 
+                                isFavorite={favorites.includes(restId)}
+                                onToggleFavorite={handleToggleFavorite}
+                            />
+                        );
+                    })
                 ) : (
                     <div className="loading">No restaurant found 😕</div>
                 )}
