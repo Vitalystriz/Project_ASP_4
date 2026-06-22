@@ -85,6 +85,7 @@ const findTarget = (target) => {
 
 
     return allProducts.filter((product) =>
+        (product.id && product.id.toLowerCase() === target) ||
         (product.name && product.name.toLowerCase().includes(target)) ||
         (product.description && product.description.toLowerCase().includes(target)) ||
         (product.type && product.type.toLowerCase().includes(target))

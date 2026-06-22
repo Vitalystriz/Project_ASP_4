@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Order.css';
 
-const OrderItem = ({ orderId, restaurantId, userId, product, onPriceReport, onUpdateRequired }) => {
+const OrderItem = ({ orderId, restaurantId, userId, product, onPriceReport, onUpdateRequired, onQuantityUpdate, onItemRemoval }) => {
     const [productDetails, setProductDetails] = useState(null);
     const [isMutating, setIsMutating] = useState(false);
     const reportedPriceRef = useRef(0);
@@ -49,26 +49,9 @@ const OrderItem = ({ orderId, restaurantId, userId, product, onPriceReport, onUp
     }, [product.quantity, productDetails, product.productId, onPriceReport]);
 
     const handleQuantityUpdate = async (newQuantity) => {
-        if (newQuantity < 1) {
-            return handleItemRemoval();
-        }
         setIsMutating(true);
-
         try {
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'user-id': userId
-                },
-                body: JSON.stringify({
-                    products: [{ productId: product.productId, quantity: newQuantity }]
-                })
-            });
-
-            if (response.ok) {
-                onUpdateRequired();
-            }
+            await onQuantityUpdate(product.productId, newQuantity);
         } catch (error) {
             console.error(error);
         } finally {
@@ -79,17 +62,7 @@ const OrderItem = ({ orderId, restaurantId, userId, product, onPriceReport, onUp
     const handleItemRemoval = async () => {
         setIsMutating(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
-                method: 'DELETE',
-                headers: {
-                    'user-id': userId
-                }
-            });
-
-            if (response.ok) {
-                onPriceReport(product.productId, 0);
-                onUpdateRequired();
-            }
+            await onItemRemoval(product.productId);
         } catch (error) {
             console.error(error);
         } finally {
@@ -153,6 +126,59 @@ export default function OrderCard({ order, onPriceReport, onUpdateRequired }) {
         onPriceReport(productId, itemTotal);
     };
 
+    const handleQuantityUpdate = async (productId, newQuantity) => {
+        if (!order || !order.products) return;
+
+        let updatedProducts;
+        if (newQuantity < 1) {
+            updatedProducts = order.products.filter(p => p.productId !== productId);
+        } else {
+            updatedProducts = order.products.map(p =>
+                p.productId === productId ? { ...p, quantity: newQuantity } : p
+            );
+        }
+
+        if (updatedProducts.length === 0) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'user-id': order.userId
+                    }
+                });
+                if (response.ok) {
+                    onPriceReport(productId, 0);
+                    onUpdateRequired();
+                }
+            } catch (error) {
+                console.error("Error deleting empty order:", error);
+            }
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/orders/${order.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'user-id': order.userId
+                },
+                body: JSON.stringify({
+                    products: updatedProducts
+                })
+            });
+            if (response.ok) {
+                onUpdateRequired();
+            }
+        } catch (error) {
+            console.error("Error updating order products:", error);
+        }
+    };
+
+    const handleItemRemoval = async (productId) => {
+        await handleQuantityUpdate(productId, 0);
+    };
+
     return (
         <div className="order-card">
             <div className="order-card-header">
@@ -169,6 +195,8 @@ export default function OrderCard({ order, onPriceReport, onUpdateRequired }) {
                     product={product}
                     onPriceReport={handleLocalPriceReport}
                     onUpdateRequired={onUpdateRequired}
+                    onQuantityUpdate={handleQuantityUpdate}
+                    onItemRemoval={handleItemRemoval}
                 />
             ))}
         </div>

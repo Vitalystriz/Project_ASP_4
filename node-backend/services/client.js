@@ -27,7 +27,7 @@ const fetchRecommendations = async (userId, targetId) => {
         throw new Error("Empty response from cpp server");
     }
 
-    console.log(rawResponse)
+    console.log("response: "+rawResponse)
     // Split response into raws
     const lines = rawResponse.split('\n').map(line => line.trim());
 
