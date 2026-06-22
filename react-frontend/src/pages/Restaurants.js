@@ -8,24 +8,68 @@ const Restaurants = ({ searchTerm }) => {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(false);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [favorites, setFavorites] = React.useState(() => {
+        const saved = localStorage.getItem('favorite_restaurants');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     const [formData, setFormData] = React.useState({
         name: '',
         type: '',
         description: '',
-        address: ''
+        x: '',
+        y: ''
     });
-    const targetUserId = JSON.parse(localStorage.getItem('user'))?.id;
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
+    const targetUserId = user?.id;
+    const userX = user?.x !== undefined ? parseFloat(user.x) : null;
+    const userY = user?.y !== undefined ? parseFloat(user.y) : null;
+
+    const sortRestaurants = (list, currentFavorites) => {
+        let updatedList = list.map(restaurant => {
+            const restX = parseFloat(restaurant.x) || 0;
+            const restY = parseFloat(restaurant.y) || 0;
+            let distance = undefined;
+            
+            if (userX !== null && userY !== null) {
+                const calcDist = Math.sqrt(Math.pow(userX - restX, 2) + Math.pow(userY - restY, 2));
+                distance = parseFloat(calcDist.toFixed(2));
+            }
+            return { ...restaurant, distance };
+        });
+
+        updatedList.sort((a, b) => {
+            const idA = a.id || a._id;
+            const idB = b.id || b._id;
+            const isFavA = currentFavorites.includes(idA);
+            const isFavB = currentFavorites.includes(idB);
+            if (isFavA && !isFavB) return -1;
+            if (!isFavA && isFavB) return 1;
+            if (a.distance !== undefined && b.distance !== undefined) {
+                return a.distance - b.distance;
+            }
+            return 0;
+        });
+
+        return updatedList;
+    };
+
     React.useEffect(() => {
         const fetchRestaurants = async () => {
             try {
                 setLoading(true);
                 setError(false);
+                
                 const response = await fetch('http://localhost:5000/api/restaurants');
                 if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
                 const actualData = Array.isArray(data) ? data : (data.data || []);
-                setRestaurants(actualData);
-                setFilteredRestaurants(actualData);
+
+                const sorted = sortRestaurants(actualData, favorites);
+                setRestaurants(sorted);
+                setFilteredRestaurants(sorted);
             } catch (err) {
                 console.error('Fetch error:', err);
                 setError(true);
@@ -34,7 +78,21 @@ const Restaurants = ({ searchTerm }) => {
             }
         };
         fetchRestaurants();
-    }, []);
+    }, [userX, userY]);
+
+    const handleToggleFavorite = (restaurantId) => {
+        let updatedFavorites;
+        if (favorites.includes(restaurantId)) {
+            updatedFavorites = favorites.filter(id => id !== restaurantId);
+        } else {
+            updatedFavorites = [...favorites, restaurantId];
+        }
+        
+        setFavorites(updatedFavorites);
+        localStorage.setItem('favorite_restaurants', JSON.stringify(updatedFavorites));
+        const resorted = sortRestaurants(restaurants, updatedFavorites);
+        setRestaurants(resorted);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -43,13 +101,20 @@ const Restaurants = ({ searchTerm }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.name || !formData.type) {
-            alert("Please fill in at least Restaurant Name and Food Type!");
+        if (!formData.name || !formData.type || formData.x === '' || formData.y === '') {
+            alert("Please fill in Restaurant Name, Food Type and Coordinates!");
             return;
         }
 
         const fallbackId = 'res_' + Date.now().toString();
-        const localBackup = { _id: fallbackId, id: fallbackId, ...formData };
+        const preparedData = {
+            name: formData.name,
+            type: formData.type,
+            description: formData.description,
+            x: parseFloat(formData.x),
+            y: parseFloat(formData.y)
+        };
+        const localBackup = { _id: fallbackId, id: fallbackId, ...preparedData };
 
         try {
             const response = await fetch('http://localhost:5000/api/restaurants', {
@@ -58,25 +123,28 @@ const Restaurants = ({ searchTerm }) => {
                     'Content-Type': 'application/json',
                     'user-id': targetUserId
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(preparedData)
             });
 
             if (response.ok) {
                 const data = await response.json();
                 const savedRestaurant = data._id || data.id ? data : (data.data || localBackup);
 
-                setRestaurants(prev => [...prev, savedRestaurant]);
-                setFilteredRestaurants(prev => [...prev, savedRestaurant]);
+                const resorted = sortRestaurants([...restaurants, savedRestaurant], favorites);
+                setRestaurants(resorted);
+                setFilteredRestaurants(resorted);
             } else {
-                setRestaurants(prev => [...prev, localBackup]);
-                setFilteredRestaurants(prev => [...prev, localBackup]);
+                const resorted = sortRestaurants([...restaurants, localBackup], favorites);
+                setRestaurants(resorted);
+                setFilteredRestaurants(resorted);
             }
         } catch (err) {
             console.error('Network/Server error during save:', err);
-            setRestaurants(prev => [...prev, localBackup]);
-            setFilteredRestaurants(prev => [...prev, localBackup]);
+            const resorted = sortRestaurants([...restaurants, localBackup], favorites);
+            setRestaurants(resorted);
+            setFilteredRestaurants(resorted);
         } finally {
-            setFormData({ name: '', type: '', description: '', address: '' });
+            setFormData({ name: '', type: '', description: '', x: '', y: '' });
             setIsModalOpen(false);
             setError(false);
         }
@@ -110,9 +178,17 @@ const Restaurants = ({ searchTerm }) => {
                 {error && restaurants.length === 0 ? (
                     <div className="loading">Failed to load restaurants 😕</div>
                 ) : filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map(restaurant => (
-                        <RestaurantCard key={restaurant._id || restaurant.id} restaurant={restaurant} />
-                    ))
+                    filteredRestaurants.map(restaurant => {
+                        const restId = restaurant.id || restaurant._id;
+                        return (
+                            <RestaurantCard 
+                                key={restId} 
+                                restaurant={restaurant} 
+                                isFavorite={favorites.includes(restId)}
+                                onToggleFavorite={handleToggleFavorite}
+                            />
+                        );
+                    })
                 ) : (
                     <div className="loading">No restaurant found 😕</div>
                 )}
@@ -136,8 +212,12 @@ const Restaurants = ({ searchTerm }) => {
                                 <textarea name="description" value={formData.description} onChange={handleInputChange} />
                             </div>
                             <div className="modal-form-group">
-                                <label>Address</label>
-                                <input type="text" name="address" value={formData.address} onChange={handleInputChange} />
+                                <label>Coordinate X *</label>
+                                <input type="number" step="any" name="x" value={formData.x} onChange={handleInputChange} required />
+                            </div>
+                            <div className="modal-form-group">
+                                <label>Coordinate Y *</label>
+                                <input type="number" step="any" name="y" value={formData.y} onChange={handleInputChange} required />
                             </div>
                             <div className="modal-actions">
                                 <button type="button" className="modal-cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>

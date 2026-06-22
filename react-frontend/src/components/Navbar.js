@@ -11,7 +11,9 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState({ name: '', avatar: '' });
   const [theme, setTheme] = useState('light');
-  const [userAddress, setUserAddress] = useState('Tel Aviv, Israel');
+  
+  const [userX, setUserX] = useState(0);
+  const [userY, setUserY] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,8 +28,9 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
                 name: user.displayName || user.username || 'User',
                 avatar: user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
             });
-            if (user.address) {
-                setUserAddress(user.address);
+            if (user.x !== undefined && user.y !== undefined) {
+                setUserX(user.x);
+                setUserY(user.y);
             }
         } catch (e) {
             console.error("Error parsing user data in Navbar:", e);
@@ -74,8 +77,8 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
             <div className="navbar-address-delivery">
               <span className="address-icon">📍</span>
               <div className="address-text">
-                <span className="address-label">Delivering To:</span>
-                <span className="address-value">{userAddress}</span>
+                <span className="address-label">Location Coordinates:</span>
+                <span className="address-value">X: {userX}, Y: {userY}</span>
               </div>
             </div>
           )}

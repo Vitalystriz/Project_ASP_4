@@ -1,9 +1,8 @@
 const User = require('../models/users');
 
 exports.userSignIn = (req, res) => {
-    const { displayName, username, password } = req.body;
-    
-    if (!displayName || !username || !password) {
+    const { displayName, username, password, x, y } = req.body;
+        if (!displayName || !username || !password || x === undefined || y === undefined) {
         return res.status(400).json({ message: 'missing fields' });
     }
     
@@ -16,8 +15,7 @@ exports.userSignIn = (req, res) => {
     }
     
     const profilePic = req.file ? req.file.filename : null;
-    
-    const user = User.createUser(displayName, trimmedName, password, profilePic);
+    const user = User.createUser(displayName, trimmedName, password, profilePic, parseFloat(x), parseFloat(y));
     res.status(201).json(user);
 };
 
